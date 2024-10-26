@@ -13,13 +13,15 @@ def hiderun(cmd: str):
     return os.system(cmd)
 
 def mkdir(p):
-    print(f"Create Folder '{p}'")
+    print(f"Creating Folder '{p}' ...", end="")
     os.makedirs(p, exist_ok=True)
+    print("OK")
 
 def gitinit(p):
-    print("Init [blue]Git[/blue] [green]Repo[/green]")
+    print("Initing [blue]Git[/blue] [green]Repo[/green] ...", end="")
     os.chdir(root + "/" + p)
     hiderun("git init -b main")
+    print("OK")
 
 
 @c.group()
@@ -28,7 +30,7 @@ def cli():
 
 @c.command(help="Initialize Project")
 @c.argument("path")
-@c.option("-g", "--git", is_flag=True)
+@c.option("-g", "--git", is_flag=True, help="Initialize git repository")
 def init(path: str, git: bool):
     path = path.strip("/")
     mkdir(path)
