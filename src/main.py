@@ -78,7 +78,6 @@ def cli():
     "-l",
     "--lang",
     "--language",
-    "language",
     default="None",
     help="Define the project language",
 )
@@ -124,9 +123,8 @@ def init(path: str, git: bool, readme: bool, makefile: bool, language: str, name
                 "skipping...",
             )
 
+    #! TODO
     if tomake and makefile:
-        # writefile("Makefile", path, "")
-        #! TODO
         pass
 
 
