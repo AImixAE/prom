@@ -34,18 +34,15 @@ def hiderun(cmd: str):
     return (result, hideio.getvalue())
 
 
-def mkdir(p):
+def mkdir(p, basepath: str = ""):
     print(f"Creating Folder '{p}' ...", end="")
 
-    os.makedirs(p, exist_ok=True)
+    os.makedirs(f"{basepath}/{p}", exist_ok=True)
 
     print("OK")
 
 
 def writefile(filename: str, basepath: str = "", context: str = ""):
-    filename = filename.strip("/")
-    basepath = basepath.strip("/")
-
     print(f"Writing to '{filename}' ...", end="")
 
     with open(f"{basepath}/{filename}", mode="w+") as f:
@@ -78,6 +75,7 @@ def cli():
     "-l",
     "--lang",
     "--language",
+    "language",
     default="None",
     help="Define the project language",
 )
@@ -89,13 +87,12 @@ def cli():
     help="Define the project name",
 )
 def init(path: str, git: bool, readme: bool, makefile: bool, language: str, name: str):
-    path = path.strip("/")
     tomake: bool = False
 
-    mkdir(path)
+    mkdir(path, root)
+    mkdir("src", f"{root}/{path}")
+    mkdir("doc", f"{root}/{path}")
     os.chdir(f"{root}/{path}")
-    mkdir("src")
-    mkdir("doc")
 
     if git:
         gitinit(path)
@@ -105,7 +102,7 @@ def init(path: str, git: bool, readme: bool, makefile: bool, language: str, name
 
     match language:
         case "python" | "python3":
-            pass
+            writefile("main.py", f"{root}/{path}/src", "#!python3\n\nprint(\"Hello, World!\")")
 
         case "clang" | "c":
             tomake = True
@@ -123,7 +120,7 @@ def init(path: str, git: bool, readme: bool, makefile: bool, language: str, name
                 "skipping...",
             )
 
-    #! TODO
+    # TODO
     if tomake and makefile:
         pass
 
