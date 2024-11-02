@@ -3,6 +3,7 @@ import io
 import os
 import shutil as sl
 import sys
+import time
 
 import click as c
 from rich import print
@@ -49,27 +50,50 @@ def hiderun(cmd: str):
     return (result, hideio.getvalue())
 
 
-def mkdir(p, basepath: str = "."):
-    print(f"Creating Folder '{p}' ...", end="")
+def mkdir(p: str):
+    friendly_p = p.split("/")[-1]
 
-    os.makedirs(f"{basepath}/{p}", exist_ok=True)
+    print(f"Creating Folder '{friendly_p}' ...", end="")
+
+    os.makedirs(p, exist_ok=True)
 
     print("OK")
 
 
-def writefile(filename: str, basepath: str = ".", context: str = ""):
-    print(f"Writing to '{filename}' ...", end="")
+def writefile(filename: str, context: str = ""):
+    friendly_filename = filename.split("/")[-1]
 
-    with open(f"{basepath}/{filename}", mode="w+") as f:
+    print(f"Writing to '{friendly_filename}' ...", end="")
+
+    with open(filename, mode="w+") as f:
         f.write(context)
 
     print("OK")
 
 
-def copydir(src, opt, srcbase="", optbase="", base="."):
-    print(f"Copying dir '{src}' to '{opt}' ...", end="")
+def repfile(filename: str, old: str = "", new: str = ""):
+    friendly_filename = filename.split("/")[-1]
 
-    sl.copytree(f"{base}/{srcbase}/{src}", f"{base}/{optbase}/{opt}", dirs_exist_ok=True)
+    print(f"Replacing to '{friendly_filename}' ...", end="")
+
+    with open(filename, mode="r") as f:
+        o = str(f.read()).replace(old, new)
+
+    with open(filename, mode="w+") as f:
+        f.write(o)
+
+    print("OK")
+
+
+def copydir(src: str, target: str):
+    friendly_src = src.split("/")[-1]
+    friendly_target = target.split("/")[-1]
+
+    print(f"Copying dir '{friendly_src}' to '{friendly_target}' ...", end="")
+
+    sl.copytree(
+        src, target, dirs_exist_ok=True
+    )
 
     print("OK")
 
@@ -105,7 +129,7 @@ def cli():
     "-p",
     "--project-name",
     "name",
-    default="ProjectName",
+    default="",
     help="Define the project name",
 )
 def init(
@@ -115,19 +139,46 @@ def init(
     language: str,
     name: str,
 ):
-    mkdir(path, root)
-    mkdir("src", f"{root}/{path}")
-    mkdir("doc", f"{root}/{path}")
+    friendly_path = path.split("/")[-1]
+
+    if os.path.isdir(path):
+        print("[yellow]Warning: [/yellow] Folder already exist!")
+        control = input("Continue? [y/N/d]")
+
+        match control:
+            case "y" | "Y":
+                pass
+            case "n" | "N" | "":
+                print("bye")
+                return
+            case "d" | "D":
+                print("Folder will be deleted in 2 seconds ...", end="")
+                time.sleep(2)
+                print("Deleting ...", end="")
+                sl.rmtree(path)
+                print("OK")
+            case _:
+                print("Is not a valid input!")
+                return
+
+    mkdir(f"{root}/{path}")
+    mkdir(f"{root}/{path}/src")
+    mkdir(f"{root}/{path}/src")
     os.chdir(f"{root}/{path}")
+
+    if not name:
+        name = friendly_path
 
     if git:
         gitinit(path)
 
     if readme:
-        writefile("README.md", f"{root}/{path}", f"# {name}")
+        writefile(f"{root}/{path}/README.md", f"# {name}")
 
     if language in supported_language:
-        copydir(language, path, srcbase=f"{assets_path}/data", base=root)
+        copydir(f"{assets_path}/data/{language}", f"{root}/{path}")
+
+        repfile(f"{root}/{path}/prom.toml", "%name%", name)
     else:
         print(
             "[yellow]Warning: [/yellow]" + "Invalid or unsupported language,",
