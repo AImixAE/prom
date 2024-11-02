@@ -11,8 +11,11 @@ pf = sys.platform  # 系统
 
 
 def hidecmd(cmd: str):
-    if pf == "linux":
-        cmd = f"{cmd} &> /dev/null"
+    match pf:
+        case "linux":
+            cmd = f"{cmd} &> /dev/null"
+        case "windows":
+            cmd = f"{cmd} | Out-Null || {cmd} >nul"
 
     return os.system(cmd)
 
@@ -70,7 +73,6 @@ def cli():
 @c.argument("path")
 @c.option("-g", "--git", is_flag=True, help="Initialize git repository")
 @c.option("-r", "--readme", is_flag=True, help="Add README.md to your project")
-@c.option("-m", "--makefile", is_flag=True, help="Add Makefile to your project")
 @c.option(
     "-l",
     "--lang",
@@ -86,13 +88,18 @@ def cli():
     default="ProjectName",
     help="Define the project name",
 )
-def init(path: str, git: bool, readme: bool, makefile: bool, language: str, name: str):
-    tomake: bool = False
-
+def init(
+    path: str,
+    git: bool,
+    readme: bool,
+    language: str,
+    name: str,
+):
     mkdir(path, root)
     mkdir("src", f"{root}/{path}")
     mkdir("doc", f"{root}/{path}")
     os.chdir(f"{root}/{path}")
+    writefile("prom.toml", f"{root}/{path}", "")
 
     if git:
         gitinit(path)
@@ -102,27 +109,18 @@ def init(path: str, git: bool, readme: bool, makefile: bool, language: str, name
 
     match language:
         case "python" | "python3":
-            writefile("main.py", f"{root}/{path}/src", "#!python3\n\nprint(\"Hello, World!\")")
-
-        case "clang" | "c":
-            tomake = True
-
-        case "clang++" | "c++" | "cpp":
-            tomake = True
+            writefile(
+                "main.py", f"{root}/{path}/src", '#!python3\n\nprint("Hello, World!")'
+            )
 
         case "None":
             pass
 
         case _:
             print(
-                "[yellow]Warning: [/yellow]" +
-                "Invalid or unsupported language,",
+                "[yellow]Warning: [/yellow]" + "Invalid or unsupported language,",
                 "skipping...",
             )
-
-    # TODO
-    if tomake and makefile:
-        pass
 
 
 cli.add_command(init)
