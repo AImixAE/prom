@@ -3,3 +3,5 @@
 /prom
 /test
 
+**/__pycache__
+
