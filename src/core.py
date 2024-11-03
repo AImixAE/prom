@@ -16,7 +16,7 @@ assets_path = os.getenv("PROM_ASSETS_PATH") or f"{fdir}/../assets"
 
 
 app_name = "ProM"
-version = {"group": "Code", "tag": "Dev", "ver": [0, 0, 1], "dev": "Preview"}
+version = {"group": "Code", "tag": "Dev", "ver": [0, 0, 2], "dev": "Preview"}
 
 
 supported_language = ["python", "python3", "None"]
@@ -127,7 +127,7 @@ def cli():
     pass
 
 
-# 我认为最终它会变得越来越彭大 10/26/2024
+# 我认为最终它会变得越来越彭大 10/26/2024 --AImixAE
 @c.command(help="Initialize Project")
 @c.argument("path")
 @c.option("-g", "--git", is_flag=True, help="Initialize git repository")
@@ -226,6 +226,7 @@ def run(target: str):
     with open(f"{root}/prom.toml", mode="rb") as f:
         t = tomli.load(f)
 
+    # 我嘞个巨型if啊 11/3/2024 --AImixAE
     if "action" not in t:
         print(
             "[yellow]Warning:[/yellow]",
@@ -263,16 +264,14 @@ def run(target: str):
     partition(f"Run Target:{target}")
 
 
-    arg = ""
+    arg: str = ""
     args = act["args"]
     argc = len(args)
 
     for i in range(argc):
-        arg += str(args[i])
-        if not i == argc - 1:
-            arg += " "
+        arg += " " + str(args[i])
 
-    os.system(f"{act['command']} {arg}")
+    os.system(str(act['command']) + arg)
 
     end_partition()
 
