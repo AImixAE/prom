@@ -3,3 +3,7 @@ name = "%name%"
 version = "v1.0.0"
 language = "python"
 
+
+[action.main.run]
+command = "python"
+args = ["./src/main.py"]

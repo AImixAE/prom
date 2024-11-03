@@ -4,10 +4,12 @@ import os
 import shutil as sl
 import sys
 
+import tomli
+
 import click as c
 from rich import print
 
-fdir = os.path.dirname(__file__) # 当前文件所在文件夹
+fdir = os.path.dirname(__file__)  # 当前文件所在文件夹
 root = os.getcwd()  # 当前路径
 pf = sys.platform  # 系统
 assets_path = os.getenv("PROM_ASSETS_PATH") or f"{fdir}/../assets"
@@ -105,6 +107,21 @@ def gitinit(p):
     print("OK")
 
 
+def partition(title: str = "", count: int = 5, char: str = "-"):
+    res = f"[yellow]{char * count}[/yellow]"
+
+    if title:
+        res += f" [blue]{title}[/blue] "
+
+    res += f"[yellow]{char * count}[/yellow]"
+
+    print(res)
+
+
+def end_partition(count: int = 5, char: str = "-"):
+    partition(title="End", count=count, char=char)
+
+
 @c.group()
 def cli():
     pass
@@ -166,6 +183,8 @@ def init(
                     print("Is not a valid input!")
         print()
 
+    partition("Init Repo")
+
     mkdir(f"{root}/{path}")
     mkdir(f"{root}/{path}/src")
     mkdir(f"{root}/{path}/src")
@@ -191,8 +210,75 @@ def init(
             "skipping...",
         )
 
+    end_partition()
+
+
+@c.command(help="Run Project")
+@c.argument("target", default="main")
+def run(target: str):
+    if not os.path.isfile(f"{root}/prom.toml"):
+        print(
+            "[yellow]Warning:[/yellow]",
+            "prom.toml does not exist!",
+        )
+        return
+
+    with open(f"{root}/prom.toml", mode="rb") as f:
+        t = tomli.load(f)
+
+    if "action" not in t:
+        print(
+            "[yellow]Warning:[/yellow]",
+            "Action does not exist!",
+        )
+
+        return
+
+    if target not in t["action"]:
+        print(
+            "[yellow]Warning:[/yellow]",
+            "Action:run does not exist!",
+        )
+
+        return
+
+    if "run" not in t["action"][target]:
+        print(
+            "[yellow]Warning:[/yellow]",
+            "Action:run does not exist!",
+        )
+
+        return
+
+    act = t["action"][target]["run"]
+
+    if "command" not in act and "args" not in act:
+        print(
+            "[yellow]Warning:[/yellow]",
+            "Action:run Incomplete!",
+        )
+
+        return
+
+    partition(f"Run Target:{target}")
+
+
+    arg = ""
+    args = act["args"]
+    argc = len(args)
+
+    for i in range(argc):
+        arg += str(args[i])
+        if not i == argc - 1:
+            arg += " "
+
+    os.system(f"{act['command']} {arg}")
+
+    end_partition()
+
 
 cli.add_command(init)
+cli.add_command(run)
 
 if __name__ == "__main__":
     print("You are running a program in a plug-in")
