@@ -73,7 +73,7 @@ def projressive_exist(context: dict, lst: list):
         else:
             print(f"[yellow]Warning: [/yellow][blue]{where}[/blue] Incomplete!")
             return
-    
+
     return v
 
 
@@ -92,7 +92,7 @@ def check_exist(context: dict, lst: list):
         if k not in v:
             print(f"[yellow]Warning: [/yellow][blue]{k}[/blue] Incomplete!")
             return
-    
+
     return v
 
 
@@ -270,15 +270,12 @@ def run(target: str):
     with open(f"{root}/prom.toml", mode="rb") as f:
         t = tomli.load(f)
 
-    
     res = projressive_exist(t, ["target", target, "run"])
 
     if not res or not check_exist(res, ["command", "args"]):
         return
 
-
     partition(f"Run Target:{target}")
-
 
     arg: str = ""
     args = res["args"]
@@ -287,7 +284,7 @@ def run(target: str):
     for i in range(argc):
         arg += " " + str(args[i])
 
-    os.system(str(res['command']) + arg)
+    os.system(str(res["command"]) + arg)
 
     end_partition()
 
