@@ -52,6 +52,50 @@ def hiderun(cmd: str):
     return (result, hideio.getvalue())
 
 
+def projressive_exist(context: dict, lst: list):
+    if not context or not lst:
+        print("[yellow]Warning: [/yellow]context or lst is none")
+        return
+
+    v: dict = context
+    where: str = lst[0]
+
+    lst_len = len(lst)
+
+    for i in range(lst_len):
+        k = lst[i]
+
+        where += ":" if i != 0 else ""
+        where += str(k)
+
+        if k in v:
+            v = v[k]
+        else:
+            print(f"[yellow]Warning: [/yellow][blue]{where}[/blue] Incomplete!")
+            return
+    
+    return v
+
+
+def check_exist(context: dict, lst: list):
+    if not context or not lst:
+        print("[yellow]Warning: [/yellow]context or lst is none")
+        return
+
+    v: dict = context
+
+    lst_len = len(lst)
+
+    for i in range(lst_len):
+        k = lst[i]
+
+        if k not in v:
+            print(f"[yellow]Warning: [/yellow][blue]{k}[/blue] Incomplete!")
+            return
+    
+    return v
+
+
 def mkdir(p: str):
     friendly_p = p.split("/")[-1]
 
@@ -226,52 +270,24 @@ def run(target: str):
     with open(f"{root}/prom.toml", mode="rb") as f:
         t = tomli.load(f)
 
-    # 我嘞个巨型if啊 11/3/2024 --AImixAE
-    if "action" not in t:
-        print(
-            "[yellow]Warning:[/yellow]",
-            "Action does not exist!",
-        )
+    
+    res = projressive_exist(t, ["target", target, "run"])
 
+    if not res or not check_exist(res, ["command", "args"]):
         return
 
-    if target not in t["action"]:
-        print(
-            "[yellow]Warning:[/yellow]",
-            "Action:run does not exist!",
-        )
-
-        return
-
-    if "run" not in t["action"][target]:
-        print(
-            "[yellow]Warning:[/yellow]",
-            "Action:run does not exist!",
-        )
-
-        return
-
-    act = t["action"][target]["run"]
-
-    if "command" not in act and "args" not in act:
-        print(
-            "[yellow]Warning:[/yellow]",
-            "Action:run Incomplete!",
-        )
-
-        return
 
     partition(f"Run Target:{target}")
 
 
     arg: str = ""
-    args = act["args"]
+    args = res["args"]
     argc = len(args)
 
     for i in range(argc):
         arg += " " + str(args[i])
 
-    os.system(str(act['command']) + arg)
+    os.system(str(res['command']) + arg)
 
     end_partition()
 

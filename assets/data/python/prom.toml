@@ -4,6 +4,6 @@ version = "v1.0.0"
 language = "python"
 
 
-[action.main.run]
+[target.main.run]
 command = "python"
 args = ["./src/main.py"]
