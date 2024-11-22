@@ -19,7 +19,7 @@ app_name = "ProM"
 version = {"group": "Code", "tag": "Dev", "ver": [0, 0, 2], "dev": "Preview"}
 
 
-supported_language = ["python", "python3", "None"]
+supported_language = os.listdir(f"{assets_path}/data")
 
 
 def hidecmd(cmd: str):
@@ -99,28 +99,24 @@ def check_exist(context: dict, lst: list):
 def mkdir(p: str):
     friendly_p = p.split("/")[-1]
 
-    print(f"Creating Folder '{friendly_p}' ...", end="")
+    print(f"  [green][+][/green] {friendly_p}")
 
     os.makedirs(p, exist_ok=True)
-
-    print("OK")
 
 
 def writefile(filename: str, context: str = ""):
     friendly_filename = filename.split("/")[-1]
 
-    print(f"Writing to '{friendly_filename}' ...", end="")
+    print(f"  [green][+][/green] {friendly_filename}")
 
     with open(filename, mode="w+") as f:
         f.write(context)
-
-    print("OK")
 
 
 def repfile(filename: str, old: str = "", new: str = ""):
     friendly_filename = filename.split("/")[-1]
 
-    print(f"Replacing to '{friendly_filename}' ...", end="")
+    print(f"  [green][R][/green] {friendly_filename}")
 
     with open(filename, mode="r") as f:
         o = str(f.read()).replace(old, new)
@@ -128,42 +124,21 @@ def repfile(filename: str, old: str = "", new: str = ""):
     with open(filename, mode="w+") as f:
         f.write(o)
 
-    print("OK")
-
 
 def copydir(src: str, target: str):
     friendly_src = src.split("/")[-1]
     friendly_target = target.split("/")[-1]
 
-    print(f"Copying dir '{friendly_src}' to '{friendly_target}' ...", end="")
+    print(f"  [green][C][/green] {friendly_src} -> {friendly_target}")
 
     sl.copytree(src, target, dirs_exist_ok=True)
 
-    print("OK")
-
 
 def gitinit(p):
-    print("Initing [blue]Git[/blue] [green]Repo[/green] ...", end="")
+    print("  [green][G][/green] Initialize git repo")
 
     os.chdir(f"{root}/{p}")
     hidecmd("git init -b main")
-
-    print("OK")
-
-
-def partition(title: str = "", count: int = 5, char: str = "-"):
-    res = f"[yellow]{char * count}[/yellow]"
-
-    if title:
-        res += f" [blue]{title}[/blue] "
-
-    res += f"[yellow]{char * count}[/yellow]"
-
-    print(res)
-
-
-def end_partition(count: int = 5, char: str = "-"):
-    partition(title="End", count=count, char=char)
 
 
 @c.group()
@@ -227,7 +202,7 @@ def init(
                     print("Is not a valid input!")
         print()
 
-    partition("Init Repo")
+    print(f"Create {path}")
 
     mkdir(f"{root}/{path}")
     mkdir(f"{root}/{path}/src")
@@ -254,7 +229,7 @@ def init(
             "skipping...",
         )
 
-    end_partition()
+    print("Create [green]Ok![/green]")
 
 
 @c.command(help="Run Project")
@@ -275,8 +250,6 @@ def run(target: str):
     if not res or not check_exist(res, ["command", "args"]):
         return
 
-    partition(f"Run Target:{target}")
-
     arg: str = ""
     args = res["args"]
     argc = len(args)
@@ -286,12 +259,7 @@ def run(target: str):
 
     os.system(str(res["command"]) + arg)
 
-    end_partition()
-
 
 cli.add_command(init)
 cli.add_command(run)
 
-if __name__ == "__main__":
-    print("You are running a program in a plug-in")
-    print("Auto Exit")
