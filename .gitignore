@@ -2,5 +2,6 @@
 
 /prom
 /test
+/build
 
 **/__pycache__

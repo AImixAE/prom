@@ -54,7 +54,7 @@ def hiderun(cmd: str):
 
 def projressive_exist(context: dict, lst: list):
     if not context or not lst:
-        print("[yellow]Warning: [/yellow]context or lst is none")
+        print("[yellow]Error:[/yellow]", "context or lst is none")
         return
 
     v: dict = context
@@ -71,7 +71,7 @@ def projressive_exist(context: dict, lst: list):
         if k in v:
             v = v[k]
         else:
-            print(f"[yellow]Warning: [/yellow][blue]{where}[/blue] Incomplete!")
+            print(f"[yellow]Error:[/yellow]", "[blue]{where}[/blue] Incomplete!")
             return
 
     return v
@@ -79,7 +79,7 @@ def projressive_exist(context: dict, lst: list):
 
 def check_exist(context: dict, lst: list):
     if not context or not lst:
-        print("[yellow]Warning: [/yellow]context or lst is none")
+        print("[yellow]Error:[/yellow]", "context or lst is none")
         return
 
     v: dict = context
@@ -90,7 +90,7 @@ def check_exist(context: dict, lst: list):
         k = lst[i]
 
         if k not in v:
-            print(f"[yellow]Warning: [/yellow][blue]{k}[/blue] Incomplete!")
+            print(f"[yellow]Error:[/yellow]", "[blue]{k}[/blue] Incomplete!")
             return
 
     return v
@@ -206,7 +206,6 @@ def init(
 
     mkdir(f"{root}/{path}")
     mkdir(f"{root}/{path}/src")
-    mkdir(f"{root}/{path}/src")
     os.chdir(f"{root}/{path}")
 
     if not name:
@@ -237,7 +236,7 @@ def init(
 def run(target: str):
     if not os.path.isfile(f"{root}/prom.toml"):
         print(
-            "[yellow]Warning:[/yellow]",
+            "[yellow]Error:[/yellow]",
             "prom.toml does not exist!",
         )
         return
@@ -262,4 +261,3 @@ def run(target: str):
 
 cli.add_command(init)
 cli.add_command(run)
-
