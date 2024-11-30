@@ -1,12 +1,12 @@
 {
     "name": "%name%",
     "version": "v1.0.0",
-    "language": "python",
+    "language": "cpp",
     "main": {
         "target": {
-            "run": [
+            "build": [
                 {
-                    "command": "python",
+                    "command": "${CC}",
                     "argv": [
                         "./src/main.py"
                     ]

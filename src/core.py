@@ -3,6 +3,7 @@ import io
 import os
 import shutil as sl
 import sys
+import re
 
 import json
 
@@ -119,7 +120,7 @@ def repfile(filename: str, old: str = "", new: str = ""):
     print(f"  [green][R][/green] {friendly_filename}")
 
     with open(filename, mode="r") as f:
-        o = str(f.read()).replace(old, new)
+        o = re.sub(old, new, str(f.read()))
 
     with open(filename, mode="w+") as f:
         f.write(o)
@@ -244,19 +245,20 @@ def run(target: str):
     with open(f"{root}/prom.json", mode="rb") as f:
         t = json.load(f)
 
-    res = projressive_exist(t, ["target", target, "run"])
+    command_list: list[dict] = projressive_exist(t, [target, "target", "run"])
 
-    if not res or not check_exist(res, ["command", "args"]):
-        return
+    for command in command_list:
+        if command == {} or not check_exist(command, ["command", "argv"]):
+            return
 
-    arg: str = ""
-    args = res["args"]
-    argc = len(args)
+        arg: str = ""
+        args = command["argv"]
+        argc = len(args)
 
-    for i in range(argc):
-        arg += " " + str(args[i])
+        for i in range(argc):
+            arg += " " + str(args[i])
 
-    os.system(str(res["command"]) + arg)
+        os.system(str(command["command"]) + arg)
 
 
 cli.add_command(init)
