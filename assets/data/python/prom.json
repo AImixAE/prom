@@ -1,0 +1,15 @@
+{
+    "name": "%name%",
+    "version": "v1.0.0",
+    "language": "python",
+    "target": {
+        "main": {
+            "run": {
+                "command": "python",
+                "argv": [
+                    "./src/main.py"
+                ]
+            }
+        }
+    }
+}

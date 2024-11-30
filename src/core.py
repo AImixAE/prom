@@ -4,7 +4,7 @@ import os
 import shutil as sl
 import sys
 
-import tomli
+import json
 
 import click as c
 from rich import print
@@ -220,7 +220,7 @@ def init(
     if language in supported_language:
         copydir(f"{assets_path}/data/{language}", f"{root}/{path}")
 
-        repfile(f"{root}/{path}/prom.toml", "%name%", name)
+        repfile(f"{root}/{path}/prom.json", "%name%", name)
     else:
         print(
             "[yellow]Warning:[/yellow]",
@@ -234,15 +234,15 @@ def init(
 @c.command(help="Run Project")
 @c.argument("target", default="main")
 def run(target: str):
-    if not os.path.isfile(f"{root}/prom.toml"):
+    if not os.path.isfile(f"{root}/prom.json"):
         print(
             "[yellow]Error:[/yellow]",
-            "prom.toml does not exist!",
+            "prom.json does not exist!",
         )
         return
 
-    with open(f"{root}/prom.toml", mode="rb") as f:
-        t = tomli.load(f)
+    with open(f"{root}/prom.json", mode="rb") as f:
+        t = json.load(f)
 
     res = projressive_exist(t, ["target", target, "run"])
 
