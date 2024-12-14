@@ -53,48 +53,19 @@ def hiderun(cmd: str):
     return (result, hideio.getvalue())
 
 
-def projressive_exist(context: dict, lst: list):
-    if not context or not lst:
-        print("[yellow]Error:[/yellow]", "context or lst is none")
+def recursive_get(context: dict, *lst):
+    if not (context and lst):
         return
 
-    v: dict = context
-    where: str = lst[0]
+    pre_context = context
 
-    lst_len = len(lst)
-
-    for i in range(lst_len):
-        k = lst[i]
-
-        where += ":" if i != 0 else ""
-        where += str(k)
-
-        if k in v:
-            v = v[k]
-        else:
-            print(f"[yellow]Error:[/yellow]", "[blue]{where}[/blue] Incomplete!")
+    for i in lst:
+        if i not in pre_context:
             return
 
-    return v
+        pre_context = pre_context[i]
 
-
-def check_exist(context: dict, lst: list):
-    if not context or not lst:
-        print("[yellow]Error:[/yellow]", "context or lst is none")
-        return
-
-    v: dict = context
-
-    lst_len = len(lst)
-
-    for i in range(lst_len):
-        k = lst[i]
-
-        if k not in v:
-            print(f"[yellow]Error:[/yellow]", "[blue]{k}[/blue] Incomplete!")
-            return
-
-    return v
+    return pre_context
 
 
 def mkdir(p: str):
@@ -135,13 +106,6 @@ def copydir(src: str, target: str):
     sl.copytree(src, target, dirs_exist_ok=True)
 
 
-def gitinit(p):
-    print("  [green][G][/green] Initialize git repo")
-
-    os.chdir(f"{root}/{p}")
-    hidecmd("git init -b main")
-
-
 @c.group()
 def cli():
     pass
@@ -150,7 +114,6 @@ def cli():
 # 我认为最终它会变得越来越彭大 10/26/2024 --AImixAE
 @c.command(help="Initialize Project")
 @c.argument("path")
-@c.option("-g", "--git", is_flag=True, help="Initialize git repository")
 @c.option("-r", "--readme", is_flag=True, help="Add README.md to your project")
 @c.option(
     "-l",
@@ -169,7 +132,6 @@ def cli():
 )
 def init(
     path: str,
-    git: bool,
     readme: bool,
     language: str,
     name: str,
@@ -212,9 +174,6 @@ def init(
     if not name:
         name = friendly_path
 
-    if git:
-        gitinit(path)
-
     if readme:
         writefile(f"{root}/{path}/README.md", f"# {name}")
 
@@ -245,20 +204,10 @@ def run(target: str):
     with open(f"{root}/prom.json", mode="rb") as f:
         t = json.load(f)
 
-    command_list: list[dict] = projressive_exist(t, [target, "target", "run"])
+    command_list: list[dict] = recursive_get(t, target, "run") or []
 
-    for command in command_list:
-        if command == {} or not check_exist(command, ["command", "argv"]):
-            return
-
-        arg: str = ""
-        args = command["argv"]
-        argc = len(args)
-
-        for i in range(argc):
-            arg += " " + str(args[i])
-
-        os.system(str(command["command"]) + arg)
+    for commands in command_list:
+        command = commands.get("command")
 
 
 cli.add_command(init)
