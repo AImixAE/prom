@@ -6,9 +6,7 @@
     "run": [
       {
         "command": "python",
-        "argv": [
-          "./src/main.py"
-        ]
+        "argv": ["./src/main.py"]
       }
     ]
   }

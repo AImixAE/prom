@@ -13,7 +13,7 @@ if __name__ == "__main__":
             ver += "."
 
     print(
-        f"[blue]{c.app_name}[/blue]",
+        f"[blue]{c.name}[/blue]",
         f"[yellow]{c.version['group']} {c.version['tag']}[/yellow]",
         f"[cyan]v{ver} [bold]{c.version['dev']}[/bold][/cyan]",
     )

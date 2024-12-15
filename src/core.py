@@ -12,19 +12,19 @@ from rich import print
 
 fdir = os.path.dirname(__file__)  # 当前文件所在文件夹
 root = os.getcwd()  # 当前路径
-pf = sys.platform  # 系统
+platform = sys.platform  # 系统
 assets_path = os.getenv("PROM_ASSETS_PATH") or f"{fdir}/../assets"
 
 
-app_name = "ProM"
+name = "ProM"
 version = {"group": "Code", "tag": "Dev", "ver": [0, 0, 2], "dev": "Preview"}
 
 
-supported_language = os.listdir(f"{assets_path}/data")
+supported_language = os.listdir(f"{assets_path}/repo")
 
 
 def hidecmd(cmd: str):
-    match pf:
+    match platform:
         case "linux":
             cmd = f"{cmd} &> /dev/null"
         case "windows":
@@ -66,6 +66,18 @@ def recursive_get(context: dict, *lst):
         pre_context = pre_context[i]
 
     return pre_context
+
+
+def secure_queries(context: dict, *lst, null=None):
+    res = []
+
+    for i in lst:
+        if i in context:
+            res.append(context[i])
+        else:
+            res.append(null)
+
+    return res
 
 
 def mkdir(p: str):
@@ -143,27 +155,7 @@ def init(
             "[yellow]Warning:[/yellow]",
             "Folder already exist!",
         )
-        print("y/Y:  Direct Coverage")
-        print("n/N:  Don't do anything")
-        print("d/D:  Delete and create new (no regret medicine)")
-
-        while True:
-            control = input("Continue? [y/N/d]")
-
-            match control:
-                case "y" | "Y":
-                    break
-                case "n" | "N" | "":
-                    print("bye")
-                    return
-                case "d" | "D":
-                    print("Deleting ...", end="")
-                    sl.rmtree(path)
-                    print("OK")
-                    break
-                case _:
-                    print("Is not a valid input!")
-        print()
+        return
 
     print(f"Create {path}")
 
@@ -178,7 +170,7 @@ def init(
         writefile(f"{root}/{path}/README.md", f"# {name}")
 
     if language in supported_language:
-        copydir(f"{assets_path}/data/{language}", f"{root}/{path}")
+        copydir(f"{assets_path}/repo/{language}", f"{root}/{path}")
 
         repfile(f"{root}/{path}/prom.json", "%name%", name)
     else:
@@ -207,7 +199,14 @@ def run(target: str):
     command_list: list[dict] = recursive_get(t, target, "run") or []
 
     for commands in command_list:
-        command = commands.get("command")
+        command, args = secure_queries(commands, "command", "argv")
+
+    argv = ""
+
+    for arg in args:
+        argv += str(arg)
+
+    os.system(f"{command} {argv}")
 
 
 cli.add_command(init)
