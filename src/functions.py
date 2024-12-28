@@ -124,6 +124,7 @@ def cli():
 
 
 # 我认为最终它会变得越来越彭大 10/26/2024 --AImixAE
+# 我丢怎么还TM的少了??! 12/28/2024 --AImixAE
 @c.command(help="Initialize Project")
 @c.argument("path")
 @c.option("-r", "--readme", is_flag=True, help="Add README.md to your project")
