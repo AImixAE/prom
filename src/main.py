@@ -4,8 +4,9 @@ from rich import print
 
 import sys
 import os
+import tomli
 
-from functions import *
+import functions as func
 import data as d
 
 
@@ -21,6 +22,7 @@ class ProM:
             print()
 
     def init(
+        self,
         path: str,
         readme: bool = False,
         language: str = "None",
@@ -30,61 +32,42 @@ class ProM:
         friendly_path = path.split("/")[-1]
 
         if os.path.isdir(path):
-            print(
-                "[yellow]Warning:[/yellow]",
-                "Folder already exist!",
+            func.err(
+                FileExistsError(f"{friendly_path} already exists", "Try a new folder")
             )
-            return
+            return 1
 
         print(f"Create {path}")
 
-        mkdir(f"{root}/{path}")
-        mkdir(f"{root}/{path}/src")
-        os.chdir(f"{root}/{path}")
+        func.mkdir(f"{d.root}/{path}")
+        func.mkdir(f"{d.root}/{path}/src")
+        os.chdir(f"{d.root}/{path}")
 
         if not name:
             name = friendly_path
 
         if readme:
-            writefile(f"{root}/{path}/README.md", f"# {name}")
+            func.writefile(f"{d.root}/{path}/README.md", f"# {name}")
 
-        if language in supported_language:
-            copydir(f"{assets_path}/repo/{language}", f"{root}/{path}")
+        if language in d.supported_language:
+            func.copydir(f"{d.assets_path}/repo/{language}", f"{d.root}/{path}")
 
-            repfile(f"{root}/{path}/prom.json", "%name%", name)
+            func.repfile(f"{d.root}/{path}/prom.toml", "%name%", name)
         else:
-            print(
-                "[yellow]Warning:[/yellow]",
-                "Invalid or unsupported language,",
-                "skipping...",
-            )
+            func.warn(UserWarning("Invalid or unsupported language,", "skipping"))
 
         print("Create [green]Ok![/green]")
 
-    def run(target: str = "main"):
-        if not os.path.isfile(f"{root}/prom.json"):
-            print(
-                "[yellow]Error:[/yellow]",
-                "prom.json does not exist!",
-            )
-            return
+    def run(self):
+        "Run the project"
+        if not os.path.isfile(f"{d.root}/prom.json"):
+            func.err(FileNotFoundError("prom.json does not exist!"))
+            return 1
 
-        with open(f"{root}/prom.json", mode="rb") as f:
-            t = json.load(f)
-
-        command_list: list[dict] = recursive_get(t, target, "run") or []
-
-        for commands in command_list:
-            command, args = secure_queries(commands, "command", "argv")
-
-        argv = ""
-
-        for arg in args:
-            argv += str(arg)
-
-        os.system(f"{command} {argv}")
+        with open(f"{d.root}/prom.toml", mode="rb") as f:
+            t = tomli.load(f)
 
 
 if __name__ == "__main__":
     app = ProM()
-    f(app)
+    sys.exit(f(app))

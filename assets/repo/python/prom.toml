@@ -1,0 +1,4 @@
+[project]
+name = "%name%"
+version = "v0.1.0"
+language = "python"

@@ -1,0 +1,10 @@
+[language.None]
+values = [
+    { control = "message", type = "warning", value = "This project has no specified language." },
+]
+
+[language.python]
+values = [
+    { control = "checkfile", value = "src/main.py" },
+    { control = "execfile", value = "src/main.py" },
+]
